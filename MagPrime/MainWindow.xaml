@@ -202,7 +202,7 @@
                       ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
     <ScrollViewer Style="{StaticResource CustomScrollViewerStyle}" VerticalScrollBarVisibility="Auto">
-        <ListView x:Name="appList" ItemsSource="{Binding}" SelectionMode="Extended" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="#00000000" Margin="20">
+        <ListView x:Name="appList" ItemsSource="{Binding}" SelectionChanged="PrintText" SelectionMode="Single" ScrollViewer.HorizontalScrollBarVisibility="Disabled" Background="Transparent" BorderBrush="#00000000" Margin="20">
             <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                     <WrapPanel/>
@@ -210,9 +210,9 @@
             </ListView.ItemsPanel>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Width="60" Height="60">
-                        <Image Source="{Binding imageSource}"></Image>
-                        <TextBlock Text="{Binding appName}"></TextBlock>
+                    <Grid Width="70" Height="70">
+                        <Image Width="32" Height="32" Margin="10,20,10,10" Source="{Binding imageSource}"></Image>
+                        <TextBlock Margin="0,5,0,0" TextAlignment="Center" Text="{Binding appName}" Foreground="White"></TextBlock>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
