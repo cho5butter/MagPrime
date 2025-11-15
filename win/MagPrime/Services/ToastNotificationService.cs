@@ -1,8 +1,11 @@
+using System.Security;
 using Microsoft.Extensions.Logging;
+using Windows.Data.Xml.Dom;
+using Windows.UI.Notifications;
 
 namespace MagPrime.Services;
 
-public sealed partial class ToastNotificationService : IToastNotificationService
+public sealed class ToastNotificationService : IToastNotificationService
 {
     private readonly ILogger<ToastNotificationService> _logger;
 
@@ -13,17 +16,30 @@ public sealed partial class ToastNotificationService : IToastNotificationService
 
     public Task ShowAsync(string title, string message)
     {
-#if WINDOWS
-        return ShowWindowsToastAsync(title, message);
-#else
-        _logger.LogInformation("{Title}: {Message}", title, message);
-        return Task.CompletedTask;
-#endif
-    }
+        return Task.Run(() =>
+        {
+            try
+            {
+                var toastXml = $"""
+                    <toast>
+                      <visual>
+                        <binding template="ToastGeneric">
+                          <text>{SecurityElement.Escape(title)}</text>
+                          <text>{SecurityElement.Escape(message)}</text>
+                        </binding>
+                      </visual>
+                    </toast>
+                    """;
 
-#if !WINDOWS
-    private Task ShowWindowsToastAsync(string title, string message) => Task.CompletedTask;
-#else
-    private partial Task ShowWindowsToastAsync(string title, string message);
-#endif
+                var xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(toastXml);
+                var notification = new ToastNotification(xmlDoc);
+                ToastNotificationManager.CreateToastNotifier("MagPrime").Show(notification);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to show toast notification.");
+            }
+        });
+    }
 }

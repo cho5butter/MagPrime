@@ -2,7 +2,7 @@
 using System.Drawing;
 using System.Runtime.InteropServices;
 
-namespace MagPrime.Platforms.Windows.Interop;
+namespace MagPrime.Interop;
 
 internal static class NativeMethods
 {

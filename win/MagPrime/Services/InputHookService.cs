@@ -1,16 +1,26 @@
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using MagPrime.Infrastructure;
+using MagPrime.Interop;
 using MagPrime.Models;
 using Microsoft.Extensions.Logging;
 
 namespace MagPrime.Services;
 
-public sealed partial class InputHookService : IInputHookService
+public sealed class InputHookService : IInputHookService
 {
     private readonly ILogger<InputHookService> _logger;
+    private readonly IUiDispatcher _dispatcher;
+    private nint _hookHandle;
+    private NativeMethods.LowLevelMouseProc? _hookCallback;
     private bool _isRunning;
 
-    public InputHookService(ILogger<InputHookService> logger)
+    public InputHookService(ILogger<InputHookService> logger, IUiDispatcher dispatcher)
     {
         _logger = logger;
+        _dispatcher = dispatcher;
     }
 
     public event EventHandler<MenuRequest>? MenuRequested;
@@ -22,7 +32,18 @@ public sealed partial class InputHookService : IInputHookService
             return;
         }
 
-        StartPlatformHook();
+        _hookCallback = HookCallback;
+        _hookHandle = NativeMethods.SetWindowsHookEx(
+            HookType.WH_MOUSE_LL,
+            _hookCallback,
+            NativeMethods.GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName),
+            0);
+
+        if (_hookHandle == nint.Zero)
+        {
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "SetWindowsHookEx failed.");
+        }
+
         _isRunning = true;
         _logger.LogInformation("InputHookService started.");
     }
@@ -34,21 +55,35 @@ public sealed partial class InputHookService : IInputHookService
             return;
         }
 
-        StopPlatformHook();
+        if (_hookHandle != nint.Zero)
+        {
+            NativeMethods.UnhookWindowsHookEx(_hookHandle);
+            _hookHandle = nint.Zero;
+        }
+
         _isRunning = false;
         _logger.LogInformation("InputHookService stopped.");
     }
 
-    private void RaiseMenuRequest(MenuRequest request)
+    private nint HookCallback(int nCode, nint wParam, nint lParam)
     {
-        MenuRequested?.Invoke(this, request);
+        if (nCode >= 0 && wParam == NativeMethods.WM_RBUTTONUP)
+        {
+            var hookStruct = Marshal.PtrToStructure<NativeMethods.Msllhookstruct>(lParam);
+            if (hookStruct is not null)
+            {
+                var point = new Point(hookStruct.Value.Point.X, hookStruct.Value.Point.Y);
+                var request = new MenuRequest(DateTime.UtcNow, point, hookStruct.Value.WindowHandle);
+                _ = _dispatcher.EnqueueAsync(() => MenuRequested?.Invoke(this, request));
+            }
+        }
+
+        return NativeMethods.CallNextHookEx(_hookHandle, nCode, wParam, lParam);
     }
 
     public void Dispose()
     {
         Stop();
+        GC.SuppressFinalize(this);
     }
-
-    partial void StartPlatformHook();
-    partial void StopPlatformHook();
 }

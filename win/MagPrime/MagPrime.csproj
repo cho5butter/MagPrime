@@ -1,16 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <RootNamespace>MagPrime</RootNamespace>
-    <UseMaui>true</UseMaui>
-    <SingleProject>true</SingleProject>
+    <UseWinUI>true</UseWinUI>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
   </PropertyGroup>
 
   <ItemGroup>
-    <MauiAsset Include="Resources\**" LogicalName="Resources\%(RecursiveDir)%(Filename)%(Extension)" />
+    <PackageReference Include="CommunityToolkit.WinUI" Version="8.1.240911" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240924000" />
   </ItemGroup>
+
 </Project>

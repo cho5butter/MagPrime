@@ -17,7 +17,7 @@
 
 ## 4. 前提・制約
 - 対象OS: Windows 11/10 (64bit)、macOS 13 Ventura 以降。
-- 技術スタック: Windowsは .NET 8 + .NET MAUI、macOS は Swift 5.9 + AppKit。
+- 技術スタック: Windowsは .NET 8 + WinUI 3 (Windows App SDK)、macOS は Swift 5.9 + AppKit。
 - UIは常駐アイコンを持たず、右クリックコンテキストメニューのみで操作。
 - 外部システム連携は不要。
 - マルチモニタ環境での座標取得・ウィンドウ管理に Win32 API / CoreGraphics + Accessibility API を併用。
@@ -45,7 +45,7 @@
 - デザインガイド: Fluent Designに合わせフラットで一貫したアイコン・ラベル。
 
 ## 8. 技術スタックとアーキテクチャ
-- **アプリケーション**: .NET MAUI (.NET 8) Single Project, Windows target。
+- **アプリケーション**: WinUI 3 (.NET 8) デスクトップアプリ + Windows App SDK。
 - **ネイティブAPI**: Win32 (SetWindowPos, EnumWindows, GetWindowThreadProcessId, MonitorFromPoint 等)。
 - **サービス構成**: 背景サービス＋グローバルフックモジュール＋ウィンドウ管理モジュール。
 

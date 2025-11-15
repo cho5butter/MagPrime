@@ -1,7 +1,7 @@
 # Windows右クリックウィンドウサーフェスアプリ 設計書
 
 ## 1. 目的と適用範囲
-本資料は要件定義書（`docs/requirements.md`）を踏まえ、.NET 8 / .NET MAUI (Windows) で実装する常駐型右クリックウィンドウサーフェスアプリのシステム設計と、Swift / AppKit で実装する macOS 版の構成をまとめる。リポジトリ直下では Windows 実装を `win/`、macOS 実装を `mac/` に配置する。主に以下を対象とする。
+本資料は要件定義書（`docs/requirements.md`）を踏まえ、.NET 8 / WinUI 3 (Windows App SDK) で実装する常駐型右クリックウィンドウサーフェスアプリのシステム設計と、Swift / AppKit で実装する macOS 版の構成をまとめる。リポジトリ直下では Windows 実装を `win/`、macOS 実装を `mac/` に配置する。主に以下を対象とする。
 - アーキテクチャ・モジュール構成
 - 主要コンポーネントと責務
 - データモデル、ワークフロー、エラーハンドリング
@@ -26,9 +26,9 @@ flowchart LR
 ```
 
 ## 3. 技術選定と前提
-- **アプリ基盤**: .NET MAUI Single Project (.NET 8) をベースにし、`Platforms/Windows` で WinUI 3 + Win32 API 呼び出しを行う。
+- **アプリ基盤**: Windows App SDK 1.5 ベースの WinUI 3 デスクトップアプリ (.NET 8) とし、Win32 API を直接呼び出すサービス層をホストする。
 - **右クリック検知方式**: `SetWindowsHookEx(WH_MOUSE_LL)` による低レベルマウスフックを採用。任意座標の右クリックを捕捉し、既存メニュー表示を阻害しないよう `CallNextHookEx` を適切に呼び出す。
-- **メニュー表示**: Win32 `CreatePopupMenu` / `TrackPopupMenuEx` を利用し、マウス位置にメニューを表示。MAUI の XAML ページは使用せずネイティブ表示のみ。
+- **メニュー表示**: Win32 `CreatePopupMenu` / `TrackPopupMenuEx` を利用し、マウス位置にメニューを表示。WinUI XAML UI はステータスダッシュボードとして別途提供する。
 - **ウィンドウ操作**: `EnumWindows` + `IsWindowVisible` + `GetWindowText` で対象を列挙し、`SetWindowPos` で移動・最前面化する。`MonitorFromPoint` でカーソル所属ディスプレイを判定。
 - **常駐**: Windows スタートアップ登録はレジストリ (`HKCU\Software\Microsoft\Windows\CurrentVersion\Run`) にショートカットを作成。
 
@@ -147,7 +147,7 @@ sequenceDiagram
 |--------|------|--------|
 | 低レベルフックがセキュリティソフトでブロック | 機能停止 | デジタル署名、コードサイニング、ホワイトリスト手順をドキュメント化 |
 | 管理者権限のウィンドウにフォーカスできない | UX低下 | ユーザーに昇格起動オプションを提示し、失敗時にメッセージ表示 |
-| MAUI + WinUI の更新による API 変更 | 保守コスト | 対象バージョンを固定しCIでビルド検証 |
+| WinUI / WinAppSDK の更新による API 変更 | 保守コスト | 対象バージョンを固定しCIでビルド検証 |
 | 多言語環境で文字化け | メニュー視認性低下 | Unicode API (Wide char) を使用し、フォントのフォールバックを確認 |
 
 ## 11. 今後の課題

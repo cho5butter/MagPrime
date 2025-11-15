@@ -1,12 +1,24 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MagPrime.App">
+<Application
+    x:Class="MagPrime.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    xmlns:toolkit="using:CommunityToolkit.WinUI">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+                <controls:XamlControlsResources />
+                <toolkit:ToolkitResources />
             </ResourceDictionary.MergedDictionaries>
+
+            <AcrylicBrush x:Key="SurfaceBrush"
+                          BackgroundSource="Backdrop"
+                          TintColor="#111827"
+                          TintOpacity="0.6"
+                          TintLuminosityOpacity="0.95"
+                          FallbackColor="#111827" />
+            <SolidColorBrush x:Key="CardBrush" Color="#1F2937" />
+            <Thickness x:Key="CardPadding">20</Thickness>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

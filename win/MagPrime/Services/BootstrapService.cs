@@ -13,6 +13,8 @@ public sealed class BootstrapService : IDisposable
     private readonly ILogger<BootstrapService> _logger;
     private bool _isStarted;
 
+    public bool IsRunning => _isStarted;
+
     public BootstrapService(
         IInputHookService hookService,
         IWindowCatalogService windowCatalog,
@@ -40,6 +42,19 @@ public sealed class BootstrapService : IDisposable
         _hookService.Start();
         _isStarted = true;
         _logger.LogInformation("BootstrapService started background hooks.");
+    }
+
+    public void Stop()
+    {
+        if (!_isStarted)
+        {
+            return;
+        }
+
+        _hookService.MenuRequested -= HandleMenuRequestedAsync;
+        _hookService.Stop();
+        _isStarted = false;
+        _logger.LogInformation("BootstrapService stopped background hooks.");
     }
 
     private async void HandleMenuRequestedAsync(object? sender, MenuRequest request)
@@ -75,7 +90,8 @@ public sealed class BootstrapService : IDisposable
 
     public void Dispose()
     {
-        _hookService.MenuRequested -= HandleMenuRequestedAsync;
+        Stop();
         _hookService.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,40 +1,56 @@
+using MagPrime.Configuration;
+using MagPrime.Infrastructure;
 using MagPrime.Services;
+using MagPrime.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.UI.Dispatching;
 
 namespace MagPrime;
 
 public partial class App : Application
 {
-    private readonly BootstrapService _bootstrap;
+    private readonly IHost _host;
 
-    public App(BootstrapService bootstrap)
+    public App()
     {
         InitializeComponent();
-        _bootstrap = bootstrap;
+
+        var dispatcherQueue = DispatcherQueue.GetForCurrentThread()
+            ?? throw new InvalidOperationException("DispatcherQueue is not available on the current thread.");
+
+        _host = Host.CreateDefaultBuilder()
+            .ConfigureLogging(logging =>
+            {
+#if DEBUG
+                logging.AddDebug();
+#endif
+            })
+            .ConfigureServices(services =>
+            {
+                services.AddSingleton<IUiDispatcher>(_ => new UiDispatcher(dispatcherQueue));
+                services.AddSingleton(dispatcherQueue);
+
+                services.AddSingleton<BootstrapService>();
+                services.AddSingleton<ISettingsProvider, SettingsProvider>();
+                services.AddSingleton<IInputHookService, InputHookService>();
+                services.AddSingleton<IContextMenuPresenter, ContextMenuPresenter>();
+                services.AddSingleton<IWindowCatalogService, WindowCatalogService>();
+                services.AddSingleton<IWindowMoverService, WindowMoverService>();
+                services.AddSingleton<IToastNotificationService, ToastNotificationService>();
+
+                services.AddSingleton<MainWindowViewModel>();
+                services.AddSingleton<MainWindow>();
+            })
+            .Build();
     }
 
-    protected override Window CreateWindow(IActivationState? activationState)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _bootstrap.Start();
+        _host.Start();
 
-        // Window remains hidden; we still return a minimal surface to satisfy MAUI requirements.
-        var placeholderPage = new ContentPage
-        {
-            Content = new Label
-            {
-                Text = "MagPrime background service running.",
-                IsVisible = false
-            }
-        };
-
-        var window = new Window(placeholderPage)
-        {
-            Title = "MagPrime",
-            Width = 1,
-            Height = 1,
-            X = -32000,
-            Y = -32000
-        };
-
-        return window;
+        var window = _host.Services.GetRequiredService<MainWindow>();
+        window.Activate();
     }
 }
