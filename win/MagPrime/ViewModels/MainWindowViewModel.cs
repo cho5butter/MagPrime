@@ -63,8 +63,16 @@ public sealed class MainWindowViewModel : ObservableObject
 
     public async Task InitializeAsync()
     {
-        await SetServiceStateAsync(true).ConfigureAwait(false);
-        await RefreshAsync().ConfigureAwait(false);
+        // Service is already started in App.xaml.cs, just update UI state
+        ServiceActive = _bootstrap.IsRunning;
+        StatusMessage = _bootstrap.IsRunning
+            ? "グローバルフックが稼働中です"
+            : "サービスは停止しています";
+
+        if (_bootstrap.IsRunning)
+        {
+            await RefreshAsync().ConfigureAwait(false);
+        }
     }
 
     public async Task SetServiceStateAsync(bool isEnabled)

@@ -1,3 +1,4 @@
+using MagPrime.Configuration;
 using MagPrime.Models;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +11,7 @@ public sealed class BootstrapService : IDisposable
     private readonly IContextMenuPresenter _menuPresenter;
     private readonly IWindowMoverService _windowMover;
     private readonly IToastNotificationService _toastNotification;
+    private readonly ISettingsProvider _settingsProvider;
     private readonly ILogger<BootstrapService> _logger;
     private bool _isStarted;
 
@@ -21,6 +23,7 @@ public sealed class BootstrapService : IDisposable
         IContextMenuPresenter menuPresenter,
         IWindowMoverService windowMover,
         IToastNotificationService toastNotification,
+        ISettingsProvider settingsProvider,
         ILogger<BootstrapService> logger)
     {
         _hookService = hookService;
@@ -28,6 +31,7 @@ public sealed class BootstrapService : IDisposable
         _menuPresenter = menuPresenter;
         _windowMover = windowMover;
         _toastNotification = toastNotification;
+        _settingsProvider = settingsProvider;
         _logger = logger;
     }
 
@@ -64,8 +68,11 @@ public sealed class BootstrapService : IDisposable
             var windows = await _windowCatalog.GetWindowsAsync().ConfigureAwait(false);
             if (windows.Count == 0)
             {
-                await _toastNotification.ShowAsync("MagPrime", "移動可能なウィンドウが見つかりませんでした。")
-                    .ConfigureAwait(false);
+                if (_settingsProvider.Current.ShowToast)
+                {
+                    await _toastNotification.ShowAsync("MagPrime", "移動可能なウィンドウが見つかりませんでした。")
+                        .ConfigureAwait(false);
+                }
                 return;
             }
 
@@ -77,14 +84,20 @@ public sealed class BootstrapService : IDisposable
             }
 
             await _windowMover.MoveWindowAsync(selection, request).ConfigureAwait(false);
-            await _toastNotification.ShowAsync("MagPrime", $"{selection.Title} を現在の画面へ移動しました。")
-                .ConfigureAwait(false);
+            if (_settingsProvider.Current.ShowToast)
+            {
+                await _toastNotification.ShowAsync("MagPrime", $"{selection.Title} を現在の画面へ移動しました。")
+                    .ConfigureAwait(false);
+            }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to handle menu request.");
-            await _toastNotification.ShowAsync("MagPrime", "ウィンドウ移動に失敗しました。ログを確認してください。")
-                .ConfigureAwait(false);
+            if (_settingsProvider.Current.ShowToast)
+            {
+                await _toastNotification.ShowAsync("MagPrime", "ウィンドウ移動に失敗しました。ログを確認してください。")
+                    .ConfigureAwait(false);
+            }
         }
     }
 

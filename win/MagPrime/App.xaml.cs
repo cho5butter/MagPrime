@@ -12,10 +12,12 @@ namespace MagPrime;
 public partial class App : Application
 {
     private readonly IHost _host;
+    private Window? _mainWindow;
 
     public App()
     {
         InitializeComponent();
+        UnhandledException += OnUnhandledException;
 
         var dispatcherQueue = DispatcherQueue.GetForCurrentThread()
             ?? throw new InvalidOperationException("DispatcherQueue is not available on the current thread.");
@@ -50,7 +52,31 @@ public partial class App : Application
     {
         _host.Start();
 
-        var window = _host.Services.GetRequiredService<MainWindow>();
-        window.Activate();
+        // Start bootstrap service early to enable global hooks
+        var bootstrap = _host.Services.GetRequiredService<BootstrapService>();
+        bootstrap.Start();
+
+        _mainWindow = _host.Services.GetRequiredService<MainWindow>();
+        _mainWindow.Closed += OnMainWindowClosed;
+        _mainWindow.Activate();
+    }
+
+    private void OnMainWindowClosed(object sender, WindowEventArgs args)
+    {
+        // Clean up resources when main window is closed
+        var bootstrap = _host.Services.GetService<BootstrapService>();
+        bootstrap?.Dispose();
+
+        var settingsProvider = _host.Services.GetService<ISettingsProvider>();
+        settingsProvider?.Dispose();
+
+        _host.Dispose();
+    }
+
+    private void OnUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        var logger = _host.Services.GetService<ILogger<App>>();
+        logger?.LogCritical(e.Exception, "Unhandled exception occurred.");
+        e.Handled = true;
     }
 }
