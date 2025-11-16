@@ -75,4 +75,10 @@ public sealed class SettingsProvider : ISettingsProvider
             _logger.LogError(ex, "Failed to persist default settings.");
         }
     }
+
+    public void Dispose()
+    {
+        _gate.Dispose();
+        GC.SuppressFinalize(this);
+    }
 }

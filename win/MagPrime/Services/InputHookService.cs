@@ -74,7 +74,18 @@ public sealed class InputHookService : IInputHookService
             {
                 var point = new Point(hookStruct.Value.Point.X, hookStruct.Value.Point.Y);
                 var request = new MenuRequest(DateTime.UtcNow, point, hookStruct.Value.WindowHandle);
-                _ = _dispatcher.EnqueueAsync(() => MenuRequested?.Invoke(this, request));
+                // Fire and forget with error logging
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _dispatcher.EnqueueAsync(() => MenuRequested?.Invoke(this, request));
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to dispatch menu request.");
+                    }
+                });
             }
         }
 
