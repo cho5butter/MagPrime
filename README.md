@@ -17,7 +17,7 @@ MagPrimeは、画面の一部が他の用途で占有されている場合でも
 ## 対応プラットフォーム
 
 - **Windows**: Windows 11/10 (64bit) - WinUI 3 / Windows App SDK
-- **macOS**: macOS 13 Ventura以降 - Swift / AppKit（計画中）
+- **macOS**: macOS 13 Ventura以降 - Swift / AppKit
 
 ## システム要件
 
@@ -27,6 +27,12 @@ MagPrimeは、画面の一部が他の用途で占有されている場合でも
 - .NET 8 Runtime
 - Windows App SDK 1.5以降
 
+### macOS版
+
+- macOS 13 Ventura以降
+- Xcodeコマンドラインツール（ビルド時）
+- アクセシビリティ権限の付与が必要
+
 ## インストール
 
 ### Windows
@@ -34,6 +40,12 @@ MagPrimeは、画面の一部が他の用途で占有されている場合でも
 1. [Releases](https://github.com/cho5butter/MagPrime/releases)から最新版をダウンロード
 2. インストーラーを実行
 3. アプリケーションを起動すると、自動的にバックグラウンドで常駐開始
+
+### macOS
+
+1. [Releases](https://github.com/cho5butter/MagPrime/releases)から最新版をダウンロード
+2. アプリケーションを起動
+3. 初回起動時にアクセシビリティ権限の付与ダイアログが表示されるので、許可してください
 
 ## 使用方法
 
@@ -138,23 +150,47 @@ ToastNotificationService (通知)
 
 ## 開発
 
-### 前提条件
+### Windows版
+
+#### 前提条件
 
 - Visual Studio 2022 (17.8以降)
 - .NET 8 SDK
 - Windows App SDK 1.5
 
-### ビルド
+#### ビルド
 
 ```bash
 cd win
 dotnet build MagPrime.sln
 ```
 
-### デバッグ実行
+#### デバッグ実行
 
 ```bash
 dotnet run --project MagPrime/MagPrime.csproj
+```
+
+### macOS版
+
+#### 前提条件
+
+- macOS 13 Ventura以降
+- Xcode 15以降（Swift 5.9）
+- Xcodeコマンドラインツール
+
+#### ビルド
+
+```bash
+cd mac
+swift build
+```
+
+#### デバッグ実行
+
+```bash
+cd mac
+swift run MagPrimeMac
 ```
 
 ### プロジェクト構成
@@ -189,7 +225,7 @@ dotnet run --project MagPrime/MagPrime.csproj
 - [ ] 元位置復元機能の実装
 - [ ] ホットキーサポート
 - [ ] カスタムメニューアイコン
-- [ ] macOS版の開発
+- [x] macOS版の開発
 - [ ] 自動更新機能
 
 ## ライセンス
