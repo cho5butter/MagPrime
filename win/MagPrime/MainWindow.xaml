@@ -7,112 +7,218 @@
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
     xmlns:vm="using:MagPrime.ViewModels"
+    xmlns:media="using:Microsoft.UI.Xaml.Media"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource SurfaceBrush}">
+    <Grid>
+        <!-- Modern Mica Background -->
+        <Grid.BackgroundTransition>
+            <BrushTransition Duration="{StaticResource NormalDuration}" />
+        </Grid.BackgroundTransition>
+        <Grid.Background>
+            <SolidColorBrush Color="Transparent" />
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Padding="32" Spacing="12">
-            <FontIcon Glyph="&#xE73E;" FontSize="32" Foreground="White" />
-            <StackPanel>
-                <TextBlock Text="MagPrime Control Center"
-                           FontSize="24"
-                           FontWeight="SemiBold"
-                           Foreground="White" />
-                <TextBlock Text="右クリックウィンドウサーフェスのステータスとウィンドウ一覧"
-                           Foreground="#C0C8D4"
-                           FontSize="14" />
-            </StackPanel>
-        </StackPanel>
+        <!-- Modern Header with Glow Effect -->
+        <Grid Padding="40,32,40,24">
+            <Grid.OpacityTransition>
+                <ScalarTransition Duration="{StaticResource NormalDuration}" />
+            </Grid.OpacityTransition>
 
-        <Grid Grid.Row="1" Padding="32">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+                <!-- Icon with Glow Effect -->
+                <Border Width="56" Height="56"
+                        CornerRadius="16"
+                        Background="{ThemeResource AccentFillColorDefaultBrush}">
+                    <Border.Shadow>
+                        <ThemeShadow />
+                    </Border.Shadow>
+                    <Border.Translation>0,0,8</Border.Translation>
+                    <FontIcon Glyph="&#xE73E;"
+                              FontSize="28"
+                              Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center" />
+                </Border>
+
+                <!-- Title Section -->
+                <StackPanel VerticalAlignment="Center" Spacing="4">
+                    <TextBlock Text="MagPrime Control Center"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               FontWeight="SemiBold" />
+                    <TextBlock Text="右クリックウィンドウサーフェスのステータスとウィンドウ一覧"
+                               Style="{StaticResource BodyTextBlockStyle}"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                               Opacity="0.8" />
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" Padding="40,0,40,32">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <StackPanel Spacing="16">
-                <toolkit:SettingsCard Header="常駐サービス" Description="グローバル右クリックフックとウィンドウ移動を制御します。">
+
+            <!-- Control Section with Modern Cards -->
+            <StackPanel Spacing="12">
+                <!-- Service Control Card -->
+                <toolkit:SettingsCard Header="常駐サービス"
+                                      Description="グローバル右クリックフックとウィンドウ移動を制御します。"
+                                      CornerRadius="{StaticResource ControlCornerRadius}">
+                    <toolkit:SettingsCard.OpacityTransition>
+                        <ScalarTransition Duration="{StaticResource NormalDuration}" />
+                    </toolkit:SettingsCard.OpacityTransition>
                     <toolkit:SettingsCard.ActionContent>
                         <ToggleSwitch x:Name="ServiceToggle"
                                       IsOn="{x:Bind ViewModel.ServiceActive, Mode=OneWay}"
-                                      Foreground="White"
-                                      Toggled="ServiceToggle_Toggled" />
+                                      Toggled="ServiceToggle_Toggled">
+                            <ToggleSwitch.OpacityTransition>
+                                <ScalarTransition Duration="{StaticResource FastDuration}" />
+                            </ToggleSwitch.OpacityTransition>
+                        </ToggleSwitch>
                     </toolkit:SettingsCard.ActionContent>
                 </toolkit:SettingsCard>
 
+                <!-- Status Info Bar -->
                 <controls:InfoBar Severity="Informational"
                                    Title="サービス状態"
                                    IsOpen="True"
-                                   Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}" />
+                                   CornerRadius="{StaticResource ControlCornerRadius}"
+                                   Message="{x:Bind ViewModel.StatusMessage, Mode=OneWay}">
+                    <controls:InfoBar.OpacityTransition>
+                        <ScalarTransition Duration="{StaticResource NormalDuration}" />
+                    </controls:InfoBar.OpacityTransition>
+                </controls:InfoBar>
 
-                <Grid ColumnSpacing="12" RowSpacing="12">
+                <!-- Window List Header -->
+                <Grid ColumnSpacing="16" Margin="0,12,0,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="Auto" />
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
                         <TextBlock Text="監視中のウィンドウ"
-                                   FontSize="18"
-                                   FontWeight="SemiBold"
-                                   Foreground="White" />
-                        <controls:InfoBadge Value="{x:Bind ViewModel.WindowCount, Mode=OneWay}" />
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   FontWeight="SemiBold" />
+                        <controls:InfoBadge Value="{x:Bind ViewModel.WindowCount, Mode=OneWay}"
+                                            Style="{StaticResource AttentionValueInfoBadgeStyle}">
+                            <controls:InfoBadge.OpacityTransition>
+                                <ScalarTransition Duration="{StaticResource FastDuration}" />
+                            </controls:InfoBadge.OpacityTransition>
+                        </controls:InfoBadge>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                        <Button x:Name="RefreshButton"
-                                Content="最新の状態を取得"
-                                Style="{StaticResource AccentButtonStyle}"
-                                Click="RefreshButton_Click" />
-                    </StackPanel>
+
+                    <Button x:Name="RefreshButton"
+                            Grid.Column="1"
+                            Content="最新の状態を取得"
+                            Style="{StaticResource AccentButtonStyle}"
+                            CornerRadius="{StaticResource ControlCornerRadius}"
+                            Click="RefreshButton_Click">
+                        <Button.OpacityTransition>
+                            <ScalarTransition Duration="{StaticResource FastDuration}" />
+                        </Button.OpacityTransition>
+                    </Button>
                 </Grid>
             </StackPanel>
 
+            <!-- Modern Window List Card with Shadow -->
             <Border Grid.Row="1"
                     Margin="0,16,0,0"
                     Padding="{StaticResource CardPadding}"
-                    CornerRadius="24"
+                    CornerRadius="{StaticResource CardCornerRadius}"
                     Background="{ThemeResource CardBrush}">
-                <ListView ItemsSource="{x:Bind ViewModel.Windows, Mode=OneWay}" SelectionMode="None">
+                <Border.Shadow>
+                    <ThemeShadow />
+                </Border.Shadow>
+                <Border.Translation>0,0,16</Border.Translation>
+                <Border.OpacityTransition>
+                    <ScalarTransition Duration="{StaticResource NormalDuration}" />
+                </Border.OpacityTransition>
+
+                <ListView ItemsSource="{x:Bind ViewModel.Windows, Mode=OneWay}"
+                          SelectionMode="None">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsStackPanel />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="vm:WindowListItem">
-                            <Border CornerRadius="18"
-                                    Padding="16"
-                                    Margin="0,6"
-                                    Background="#262F3F">
+                            <Border CornerRadius="{StaticResource ControlCornerRadius}"
+                                    Padding="20,16"
+                                    Margin="0,4"
+                                    Background="{ThemeResource LayerFillColorDefaultBrush}"
+                                    PointerEntered="WindowItem_PointerEntered"
+                                    PointerExited="WindowItem_PointerExited">
+                                <Border.BackgroundTransition>
+                                    <BrushTransition Duration="{StaticResource FastDuration}" />
+                                </Border.BackgroundTransition>
+                                <Border.OpacityTransition>
+                                    <ScalarTransition Duration="{StaticResource FastDuration}" />
+                                </Border.OpacityTransition>
+
                                 <Grid ColumnSpacing="16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
-                                        <FontIcon Glyph="{x:Bind Glyph}" FontSize="20" Foreground="#7DD3FC" />
-                                        <StackPanel>
+
+                                    <!-- Icon and Title Section -->
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="16">
+                                        <!-- Icon Background -->
+                                        <Border Width="40" Height="40"
+                                                CornerRadius="8"
+                                                Background="{ThemeResource AccentFillColorSecondaryBrush}">
+                                            <FontIcon Glyph="{x:Bind Glyph}"
+                                                      FontSize="18"
+                                                      Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center" />
+                                        </Border>
+
+                                        <!-- Text Content -->
+                                        <StackPanel VerticalAlignment="Center" Spacing="2">
                                             <TextBlock Text="{x:Bind Title}"
                                                        FontWeight="SemiBold"
-                                                       Foreground="White"
-                                                       TextTrimming="CharacterEllipsis" />
+                                                       Style="{StaticResource BodyStrongTextBlockStyle}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       MaxWidth="300" />
                                             <TextBlock Text="{x:Bind Subtitle}"
-                                                       Foreground="#9CA3AF"
-                                                       FontSize="13" />
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                                         </StackPanel>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Center" Orientation="Horizontal" Spacing="8">
-                                        <Border Background="#344055"
-                                                Padding="8,4"
-                                                CornerRadius="12">
+
+                                    <!-- Status and Dimensions Section -->
+                                    <StackPanel Grid.Column="2"
+                                                HorizontalAlignment="Right"
+                                                VerticalAlignment="Center"
+                                                Orientation="Horizontal"
+                                                Spacing="12">
+                                        <!-- Status Badge -->
+                                        <Border Background="{ThemeResource AccentFillColorTertiaryBrush}"
+                                                Padding="12,6"
+                                                CornerRadius="6">
                                             <TextBlock Text="{x:Bind Status}"
-                                                       Foreground="#60A5FA"
-                                                       FontSize="12" />
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       FontWeight="SemiBold"
+                                                       Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}" />
                                         </Border>
+
+                                        <!-- Dimensions -->
                                         <TextBlock Text="{x:Bind Dimensions}"
-                                                   Foreground="#9CA3AF"
-                                                   FontSize="13" />
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Foreground="{ThemeResource TextFillColorTertiaryBrush}"
+                                                   VerticalAlignment="Center" />
                                     </StackPanel>
                                 </Grid>
                             </Border>

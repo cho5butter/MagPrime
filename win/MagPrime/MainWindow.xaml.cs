@@ -38,12 +38,18 @@ public sealed partial class MainWindow : Window
         var hwnd = WindowNative.GetWindowHandle(this);
         var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
         var appWindow = AppWindow.GetFromWindowId(windowId);
-        appWindow.Resize(new SizeInt32(1024, 720));
+        appWindow.Resize(new SizeInt32(1100, 780));
+
+        // Modern Title Bar with System Theme Colors
         var titleBar = appWindow.TitleBar;
-        titleBar.BackgroundColor = Color.FromArgb(255, 17, 24, 39);
+        titleBar.BackgroundColor = Colors.Transparent;
         titleBar.ForegroundColor = Colors.White;
         titleBar.ButtonBackgroundColor = Colors.Transparent;
         titleBar.ButtonForegroundColor = Colors.White;
+        titleBar.ButtonHoverBackgroundColor = Color.FromArgb(32, 255, 255, 255);
+        titleBar.ButtonHoverForegroundColor = Colors.White;
+        titleBar.ButtonPressedBackgroundColor = Color.FromArgb(16, 255, 255, 255);
+        titleBar.ButtonPressedForegroundColor = Colors.White;
     }
 
     private async void ServiceToggle_Toggled(object sender, RoutedEventArgs e)
@@ -63,5 +69,24 @@ public sealed partial class MainWindow : Window
     private async void RefreshButton_Click(object sender, RoutedEventArgs e)
     {
         await ViewModel.RefreshAsync();
+    }
+
+    private void WindowItem_PointerEntered(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            border.Background = Resources["CardHoverBrush"] as Brush;
+            border.Scale = new System.Numerics.Vector3(1.02f, 1.02f, 1.0f);
+        }
+    }
+
+    private void WindowItem_PointerExited(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+    {
+        if (sender is Border border)
+        {
+            border.Background = Resources["LayerFillColorDefaultBrush"] as Brush
+                ?? new SolidColorBrush(Color.FromArgb(255, 31, 41, 55));
+            border.Scale = System.Numerics.Vector3.One;
+        }
     }
 }
