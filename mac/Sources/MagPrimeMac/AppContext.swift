@@ -25,6 +25,10 @@ final class AppContext {
         bootstrap.stop()
     }
 
+    func getCatalogService() -> WindowCatalogService {
+        return catalogService
+    }
+
     private func requestAccessibilityTrustIfNeeded() {
         let trusted = AXIsProcessTrusted()
         if !trusted {
